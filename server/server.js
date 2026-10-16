@@ -13,7 +13,10 @@ ffmpeg.setFfmpegPath(ffmpegStatic);
 ffmpeg.setFfprobePath(ffprobeStatic.path);
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
+// Base URL helper for cloud deployments
+const getBaseUrl = (req) => process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
 
 // Setup directories
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -87,7 +90,7 @@ app.post('/api/upload', upload.single('media'), (req, res) => {
     res.json({
         filename: req.file.filename,
         originalname: req.file.originalname,
-        url: `http://localhost:${PORT}/uploads/${req.file.filename}`,
+        url: `${getBaseUrl(req)}/uploads/${req.file.filename}`,
         type: isVideo ? 'video' : 'image',
         mimetype: req.file.mimetype
     });
@@ -100,7 +103,7 @@ app.post('/api/upload-multiple', upload.array('media'), (req, res) => {
     const results = req.files.map(file => ({
         filename: file.filename,
         originalname: file.originalname,
-        url: `http://localhost:${PORT}/uploads/${file.filename}`,
+        url: `${getBaseUrl(req)}/uploads/${file.filename}`,
         type: file.mimetype.startsWith('video') ? 'video' : 'image',
         mimetype: file.mimetype
     }));
@@ -158,7 +161,7 @@ app.post('/api/process', async (req, res) => {
             .on('end', () => {
                 res.json({
                     success: true,
-                    url: `http://localhost:${PORT}/processed/${outputFilename}`
+                    url: `${getBaseUrl(req)}/processed/${outputFilename}`
                 });
             })
             .on('error', (err) => {
@@ -199,7 +202,7 @@ app.post('/api/process', async (req, res) => {
                 
             res.json({
                 success: true,
-                url: `http://localhost:${PORT}/processed/${outputFilename}`
+                url: `${getBaseUrl(req)}/processed/${outputFilename}`
             });
             
         } catch (error) {
@@ -260,7 +263,7 @@ app.post('/api/process-multiple', async (req, res) => {
                         .toFile(outputPath);
                         
                     processedUrls.push({
-                        url: `http://localhost:${PORT}/processed/${outputFilename}`,
+                        url: `${getBaseUrl(req)}/processed/${outputFilename}`,
                         filename: filename
                     });
                 }

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { UploadCloud, Eraser, Loader2, Download, RotateCcw, Info, Camera, Image as ImageIcon, Video, Layers } from 'lucide-react';
 import JSZip from 'jszip';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function SingleRemover() {
   const [step, setStep] = useState('upload'); // upload, edit, processing, result
